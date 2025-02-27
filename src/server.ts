@@ -1,9 +1,12 @@
-const { prompt, default: inquirer } = require('inquirer');
+import inquirer from "inquirer";
+import { QueryResult } from 'pg';
+import { pool, connectToDb } from './connection.js';
 
-console.log('----------Employee Tracker----------');
+await connectToDb();
 
 function init() {
-    prompt([
+       inquirer
+        .prompt([
     {
         type: 'list',
         name: 'options',
@@ -42,34 +45,46 @@ function init() {
             }, 
         ],
     },
-]).then((answers)=>{
+])
+.then((answers: any) => {
     let option = answers.options;
     switch (option) {
-        case 'VIEW_ALL_EMPLOYEE':
-            viewAllEmployee();
-            break;
-        case 'ADD_EMPLOYEE':
-            addEmployee();
-            break;
-        case 'UPDATE_EMPLOYEE_ROLE':
-            updateEmployee();
-            break;
-        case 'VIEW_ALL_ROLES':
-            viewRoles();
-            break;
-        case 'ADD_ROLE':
-            addRole();
-            break;
+        // case 'VIEW_ALL_EMPLOYEE':
+        //     viewAllEmployee();
+        //     break;
+        // case 'ADD_EMPLOYEE':
+        //     addEmployee();
+        //     break;
+        // case 'UPDATE_EMPLOYEE_ROLE':
+        //     updateEmployee();
+        //     break;
+        // case 'VIEW_ALL_ROLES':
+        //     viewRoles();
+        //     break;
+        // case 'ADD_ROLE':
+        //     addRole();
+        //     break;
         case 'VIEW_ALL_DEPARTMENTS':
             viewDepartments();
             break;
-        case 'ADD_DEPARTMENT':
-            addDepartment();
-            break;
-        default:
-            quit();
+        // case 'ADD_DEPARTMENT':
+        //     addDepartment();
+        //     break;
+        // default:
+        //     quit();
     }
 });
 };
+
+function viewDepartments() {
+    pool.query('SELECT * FROM department', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+          console.log(result.rows);
+        }
+      })
+    };
+      
 // Function call to intialize app
 init();
