@@ -3,6 +3,7 @@ import { QueryResult } from 'pg';
 import { pool, connectToDb } from './connection.js';
 
 await connectToDb();
+console.log('----------Employee Tracker----------')
 
 function init() {
        inquirer
@@ -58,9 +59,9 @@ function init() {
         // case 'UPDATE_EMPLOYEE_ROLE':
         //     updateEmployee();
         //     break;
-        // case 'VIEW_ALL_ROLES':
-        //     viewRoles();
-        //     break;
+        case 'VIEW_ALL_ROLES':
+            viewRoles();
+            break;
         // case 'ADD_ROLE':
         //     addRole();
         //     break;
@@ -81,10 +82,25 @@ function viewDepartments() {
         if (err) {
           console.log(err);
         } else if (result) {
-          console.log(result.rows);
+            let departments = result.rows;
+            console.log();
+            console.table(departments);
+            init();
         }
-      })
+      });
     };
       
+function viewRoles() {
+        pool.query('SELECT * FROM role', (err: Error, result: QueryResult) => {
+            if (err) {
+              console.log(err);
+            } else if (result) {
+                let roles = result.rows;
+                console.log();
+                console.table(roles);
+                init();
+            }
+          })
+        };    
 // Function call to intialize app
 init();
