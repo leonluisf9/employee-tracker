@@ -50,9 +50,9 @@ function init() {
 .then((answers: any) => {
     let option = answers.options;
     switch (option) {
-        // case 'VIEW_ALL_EMPLOYEE':
-        //     viewAllEmployee();
-        //     break;
+        case 'VIEW_ALL_EMPLOYEE':
+            viewAllEmployee();
+            break;
         // case 'ADD_EMPLOYEE':
         //     addEmployee();
         //     break;
@@ -77,8 +77,21 @@ function init() {
 });
 };
 
+function viewAllEmployee() {
+    pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+             let employees = result.rows;
+             console.log();
+             console.table(employees);
+             init();
+         }
+      });
+    };    
+
 function viewDepartments() {
-    pool.query('SELECT * FROM department', (err: Error, result: QueryResult) => {
+    pool.query('SELECT id, name FROM department', (err: Error, result: QueryResult) => {
         if (err) {
           console.log(err);
         } else if (result) {
@@ -91,7 +104,7 @@ function viewDepartments() {
     };
       
 function viewRoles() {
-        pool.query('SELECT * FROM role', (err: Error, result: QueryResult) => {
+        pool.query('SELECT role.id, role.title, department.name, role.salary FROM role LEFT JOIN department ON role.department_id = department.id', (err: Error, result: QueryResult) => {
             if (err) {
               console.log(err);
             } else if (result) {
@@ -102,5 +115,6 @@ function viewRoles() {
             }
           })
         };    
+
 // Function call to intialize app
 init();
