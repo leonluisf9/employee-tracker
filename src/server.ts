@@ -62,9 +62,9 @@ function init() {
         case 'VIEW_ALL_ROLES':
             viewRoles();
             break;
-        // case 'ADD_ROLE':
-        //     addRole();
-        //     break;
+        case 'ADD_ROLE':
+            addRole();
+            break;
         case 'VIEW_ALL_DEPARTMENTS':
             viewDepartments();
             break;
@@ -73,8 +73,7 @@ function init() {
             break;
         // default:
         //     quit();
-    }
-});
+    }});
 };
 
 function viewAllEmployee() {
@@ -100,7 +99,49 @@ function viewRoles() {
             init();
         }
        })
-    };    
+    }; 
+    
+    
+async function addRole() {
+    const result = await pool.query('SELECT id, name FROM department');
+    const { rows } = result;
+    const departmentChoices = rows.map(({id,name})=> 
+    ({
+        name: name,
+        value: id,
+    }));
+        inquirer
+         .prompt(
+            [ 
+            {
+                type: 'input',
+                name: 'titleName',
+                message: 'What role title would you like to add?'
+            },
+            {
+                type: 'input',
+                name: 'salaryAmount',
+                message: 'What salary amount would you like to add?'
+            },
+            {
+                type: 'list',
+                name: 'departmentId',
+                message: 'What department for the role?',
+                choices: departmentChoices
+            }
+        ]
+        ).then((answer: any) => {
+            pool.query('INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', [answer.titleName, answer.salaryAmount, answer.departmentId], (err: Error, result: QueryResult) => {
+                if (err) {
+                  console.log(err);
+                } else if (result) {
+                    console.log('Role created successfully');
+                    init();
+                }
+            });
+        });
+};
+
 function viewDepartments() {
     pool.query('SELECT id, name FROM department', (err: Error, result: QueryResult) => {
         if (err) {
@@ -113,11 +154,6 @@ function viewDepartments() {
         }
       });
     };
-
-    // function init() {
-    //     inquirer
-    //      .prompt([
-    //  {
 
 function addDepartment() {
         inquirer
@@ -140,7 +176,5 @@ function addDepartment() {
             });
         });
 };
-          
-
 // Function call to intialize app
 init();
