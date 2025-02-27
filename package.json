@@ -1,25 +1,25 @@
 {
   "name": "employee-tracker",
   "version": "1.0.0",
-  "description": "Command-line application from scratch to manage a company's employee database, using Node.js, Inquirer, and PostgreSQL",
-  "main": "server.js",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node dist/server.js"
   },
-  "keywords": [],
-  "author": "Luis Leon",
-  "dependencies": {
-    "inquirer": "^8.2.6",
-    "pg": "^8.13.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/leonluisf9/employee-tracker.git"
-  },
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/leonluisf9/employee-tracker/issues"
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "inquirer": "^9.2.19",
+    "typescript": "^5.4.5",
+    "pg": "^8.11.3"
   },
-  "homepage": "https://github.com/leonluisf9/employee-tracker#readme"
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.12.7",
+    "@types/pg": "^8.11.6"
+}
 }
