@@ -68,9 +68,9 @@ function init() {
         case 'VIEW_ALL_DEPARTMENTS':
             viewDepartments();
             break;
-        // case 'ADD_DEPARTMENT':
-        //     addDepartment();
-        //     break;
+        case 'ADD_DEPARTMENT':
+            addDepartment();
+            break;
         // default:
         //     quit();
     }
@@ -89,7 +89,18 @@ function viewAllEmployee() {
          }
       });
     };    
-
+function viewRoles() {
+    pool.query('SELECT role.id, role.title, department.name, role.salary FROM role LEFT JOIN department ON role.department_id = department.id', (err: Error, result: QueryResult) => {
+        if (err) {
+          console.log(err);
+        } else if (result) {
+            let roles = result.rows;
+            console.log();
+            console.table(roles);
+            init();
+        }
+       })
+    };    
 function viewDepartments() {
     pool.query('SELECT id, name FROM department', (err: Error, result: QueryResult) => {
         if (err) {
@@ -102,19 +113,34 @@ function viewDepartments() {
         }
       });
     };
-      
-function viewRoles() {
-        pool.query('SELECT role.id, role.title, department.name, role.salary FROM role LEFT JOIN department ON role.department_id = department.id', (err: Error, result: QueryResult) => {
-            if (err) {
-              console.log(err);
-            } else if (result) {
-                let roles = result.rows;
-                console.log();
-                console.table(roles);
-                init();
-            }
-          })
-        };    
+
+    // function init() {
+    //     inquirer
+    //      .prompt([
+    //  {
+
+function addDepartment() {
+        inquirer
+         .prompt(
+            [ 
+                {
+                    type: 'input',
+                    name: 'departmentName',
+                    message: 'What department would you like to add?'
+                }
+            ]
+        ).then((answer: any) => {
+            pool.query('INSERT INTO department (name) VALUES ($1)', [answer.departmentName], (err: Error, result: QueryResult) => {
+                if (err) {
+                  console.log(err);
+                } else if (result) {
+                    console.log('Department created successfully');
+                    init();
+                }
+            });
+        });
+};
+          
 
 // Function call to intialize app
 init();
