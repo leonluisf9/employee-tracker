@@ -53,9 +53,9 @@ function init() {
         case 'VIEW_ALL_EMPLOYEE':
             viewAllEmployee();
             break;
-        // case 'ADD_EMPLOYEE':
-        //     addEmployee();
-        //     break;
+        case 'ADD_EMPLOYEE':
+            addEmployee();
+            break;
         // case 'UPDATE_EMPLOYEE_ROLE':
         //     updateEmployee();
         //     break;
@@ -77,7 +77,7 @@ function init() {
 };
 
 function viewAllEmployee() {
-    pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id', (err: Error, result: QueryResult) => {
+    pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id', (err: Error, result: QueryResult) => {
         if (err) {
           console.log(err);
         } else if (result) {
@@ -88,6 +88,62 @@ function viewAllEmployee() {
          }
       });
     };    
+
+async function addEmployee() {
+        const result = await pool.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id');
+        const { rows } = result;
+        const roleChoices = rows.map(({id,title})=> 
+            ({
+                name: title,
+                value: id,
+            }));
+        const managerChoices = rows.map(({id,first_name})=> 
+                ({
+                    name: first_name,
+                    value: id,
+                }));
+            inquirer
+             .prompt(
+                [
+                    {
+                        type: 'input',
+                        name: 'firstName',
+                        message: 'What is the first name?'
+                    },
+                    {
+                        type: 'input',
+                        name: 'lastName',
+                        message: 'What is the last name?'
+                    },
+                    {
+                        type: 'list',
+                        name: 'roleId',
+                        message: 'What role does the employee belong to?',
+                        choices: roleChoices
+                    },
+                    {
+                        type: 'list',
+                        name: 'managerId',
+                        message: 'What manager does the employee belong to?',
+                        choices: managerChoices
+                    }
+                ]
+            ).then((answer: any) => {
+                pool.query('INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1,$2,$3,$4)', 
+                [answer.firstName, answer.lastName, answer.roleId, answer.managerId],
+                (err: Error, result: QueryResult) => {
+                    if (err) {
+                        console.log(err);
+                    } else if (result) {
+                        console.log('Employee created successfully');
+                        init();
+                    }
+                });
+                });
+    };
+    
+
+
 function viewRoles() {
     pool.query('SELECT role.id, role.title, department.name, role.salary FROM role LEFT JOIN department ON role.department_id = department.id', (err: Error, result: QueryResult) => {
         if (err) {
@@ -100,8 +156,6 @@ function viewRoles() {
         }
        })
     }; 
-    
-    
 async function addRole() {
     const result = await pool.query('SELECT id, name FROM department');
     const { rows } = result;
@@ -141,7 +195,6 @@ async function addRole() {
             });
         });
 };
-
 function viewDepartments() {
     pool.query('SELECT id, name FROM department', (err: Error, result: QueryResult) => {
         if (err) {
@@ -154,7 +207,6 @@ function viewDepartments() {
         }
       });
     };
-
 function addDepartment() {
         inquirer
          .prompt(
